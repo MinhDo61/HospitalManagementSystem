@@ -1,0 +1,9 @@
+D001,Dr. John Smith,Cardiologist,123-456-7890
+P001,Jane Doe
+P002,John Doe
+
+D002,Dr. Emily Davis,Neurologist,234-567-8901
+P003,Emily White
+
+D003,Dr. Michael Brown,Orthopedic Surgeon,345-678-9012
+P004,Michael Johnson
