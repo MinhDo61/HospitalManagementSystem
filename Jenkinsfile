@@ -2,52 +2,56 @@ pipeline {
     agent any
 
     stages {
+        stage('Restore') {
+            steps {
+                sh 'dotnet restore'
+            }
+        }
+
         stage('Build') {
             steps {
-                echo 'Building the project...'
-                sh 'mvn clean package'
+                sh 'dotnet build --configuration Release'
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Running tests...'
-                sh 'mvn test'
+                sh 'dotnet test --configuration Release --no-build'
             }
             post {
                 always {
-                    echo 'Archiving test results...'
-                    junit '**/target/surefire-reports/*.xml'
+                    junit '**/TestResults/*.xml'
                 }
             }
         }
 
         stage('Code Quality Analysis') {
             steps {
-                echo 'Running SonarQube analysis...'
                 withSonarQubeEnv('SonarQube') {
-                    sh 'mvn sonar:sonar'
+                    sh 'dotnet sonarscanner begin /k:"your-project-key"'
+                    sh 'dotnet build'
+                    sh 'dotnet sonarscanner end'
                 }
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying to the test environment...'
                 sh 'docker-compose up -d'
             }
         }
 
-        stage('Release') {
+        stage('Monitoring') {
             steps {
-                echo 'Releasing to production...'
+                sh 'curl -X POST http://your-monitoring-tool/api/notify -d "Deployment completed."'
+                sh 'echo "Monitoring setup completed."'
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline finished. Sending notifications...'
+            echo 'Pipeline completed.'
         }
     }
 }
